@@ -4,6 +4,10 @@ using System.Text;
 
 namespace NyÅrsProjekt
 {
+    /// <summary>
+    /// Package information: dimensions, shipping id, receiver & sender
+    /// Retrieves data from the database
+    /// </summary>
     class Package
     { 
         public int Id { get; set; }
@@ -12,7 +16,7 @@ namespace NyÅrsProjekt
         public int Height { get; set; } // mm
         public int Length { get; set; } // mm
         public PersonAddress Receiver { get; set; }
-        public Person Sender { get; set; }
+        public PersonAddress Sender { get; set; }
 
         public int Volume // mm^3
         {
@@ -21,7 +25,11 @@ namespace NyÅrsProjekt
                 return (Width * Length) * Height;
             }
         }
-
+        
+        /// <summary>
+        /// This method validates the given dimensions
+        /// </summary>
+        /// <returns>True or false</returns>
         public bool ValidateDimensions()
         {
             return 140 <= Length && Length <= 1500
@@ -31,7 +39,10 @@ namespace NyÅrsProjekt
                 && Weight <= 50000;
         }
 
-
+        /// <summary>
+        /// Calculated price according to weight
+        /// </summary>
+        /// <returns>Price of shipping</returns>
         public int Price
         {
             get
