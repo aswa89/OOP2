@@ -32,6 +32,7 @@ namespace NyÅrsProjekt
         /// <returns>True or false</returns>
         public bool ValidateDimensions()
         {
+            return true;
             return 140 <= Length && Length <= 1500
                 && 90 <= Width
                 && 15 <= Height

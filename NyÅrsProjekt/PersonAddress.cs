@@ -5,7 +5,7 @@ using System.Text;
 namespace NyÅrsProjekt
 {
     /// <summary>
-    /// This class can access sender/receiver information
+    /// Sender/receiver information for package
     /// </summary>
     class PersonAddress
     {

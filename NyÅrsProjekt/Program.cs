@@ -14,20 +14,14 @@ namespace NyÅrsProjekt
             // the name of the database 
             // The UserID and Password are the credentials 
             // required to connect to the database. 
-            string constr = @"Data Source=DESKTOP-GP8F496;Initial Catalog=Demodb;User ID=sa;Password=24518300";
+            //string constr = @"Data Source=DESKTOP-GP8F496;Initial Catalog=Demodb;User ID=sa;Password=24518300";
+            //string constr = @"Data Source=DESKTOP-P64IP0G;Initial Catalog=testdatabase;User ID=robin;Password=";
+            string constr = @"Data Source = (LocalDB)\MSSQLLocalDB; Initial Catalog = testdatabase; Integrated Security = True";
             //source = DESKTOP-P64IP0G
 
             switch (Console.ReadLine())
             {
                 case "1":
-                    Console.Clear();
-
-                    Console.WriteLine("Enter your firstname:");
-                    string senderName = Console.ReadLine();
-                    Console.Clear();
-
-                    Console.WriteLine("Enter your lastname:");
-                    senderName += " " + Console.ReadLine();
                     Console.Clear();
 
                     PersonAddress receiver = new PersonAddress();
@@ -66,6 +60,7 @@ namespace NyÅrsProjekt
                     Console.Clear();
 
                     Package package = new Package();
+                    package.Receiver = receiver;
 
                     Console.WriteLine("Enter package weigth:");
                     package.Weight = Int32.Parse(Console.ReadLine());
@@ -82,21 +77,10 @@ namespace NyÅrsProjekt
                     Console.WriteLine("Enter package height:");
                     package.Height = Int32.Parse(Console.ReadLine());
                     Console.Clear();
-                    
-                    // Database should generate this
-                    Random rnd = new Random();
-                    package.Id = 1000000 + rnd.Next(999999);
-
-                    
-                    PersonAddress sender = new PersonAddress();
-                    sender.Name = senderName;
 
                     if (package.ValidateDimensions())
                     {
                         Console.WriteLine(
-                        $"Sender: {sender.Name}\n" +
-                        $"============\n" +
-                        $"Package ID: {package.Id}\n" +
                         $"Receiver: {receiver.Name}\n" +
                         $"Street: {receiver.Address.Street}\n" +
                         $"Street number: {receiver.Address.StreetNumber}\n" +
@@ -112,34 +96,30 @@ namespace NyÅrsProjekt
                    
                         // to open the connection 
                         conn.Open();
-                   
-                        // use to perform read and write 
-                        // operations in the database 
-                        SqlCommand cmd;
                           
                         // data adapter object is use to  
                         // insert, update or delete commands 
-                        SqlDataAdapter adap = new SqlDataAdapter();  
-                          
-                        // use the defined sql statement 
-                        // against our database 
-                        string sql = 
-                            $"insert into PackageDb values('{package.Receiver.Name}', '{package.Receiver.CareOf}', '{package.Sender.Name}', '{package.Receiver.Address.Street}', {package.Receiver.Address.StreetNumber}, {package.Receiver.Address.ApartmentNumber}, {package.Receiver.Address.ZipCode}, '{package.Receiver.Address.City}', '{package.Receiver.Address.Province}', {package.Weight}, {package.Width}, {package.Height}, {package.Length})";  
+                        SqlDataAdapter adap = new SqlDataAdapter();
 
-                        // use to execute the sql command so we  
-                        // are passing query and connection object 
-                        cmd = new SqlCommand(sql, conn);
-                          
-                        // associate the insert SQL  
-                        // command to adapter object 
-                        adap.InsertCommand = new SqlCommand(sql, conn);
-                          
-                        // use to execute the DML statement against 
-                        // our database 
+                        // TODO: get inserted IDs
+
+                        string sqlAddress = $"INSERT INTO Address VALUES('{package.Receiver.Address.Street}', {package.Receiver.Address.StreetNumber}, {package.Receiver.Address.ApartmentNumber}, {package.Receiver.Address.ZipCode}, '{package.Receiver.Address.City}', '{package.Receiver.Address.Province}')";
+
+                        adap.InsertCommand = new SqlCommand(sqlAddress, conn);
+                        adap.InsertCommand.ExecuteNonQuery();
+
+                        string sqlPersonAddress = $"INSERT INTO PersonAddress VALUES('{package.Receiver.Name}', '{package.Receiver.CareOf}', {0})";
+
+                        adap.InsertCommand = new SqlCommand(sqlPersonAddress, conn);
+                        adap.InsertCommand.ExecuteNonQuery();
+
+                        string sqlPackage = $"INSERT INTO Package VALUES({package.Weight}, {package.Width}, {package.Height}, {package.Length}, {0}, {0})";  
+
+                        adap.InsertCommand = new SqlCommand(sqlPackage, conn);
                         adap.InsertCommand.ExecuteNonQuery();
                           
                         // closing all the objects 
-                        cmd.Dispose();
+                        // cmd.Dispose();
                         conn.Close();
                     }
                     else
@@ -174,7 +154,7 @@ namespace NyÅrsProjekt
                         string sql, output = "";
 
                         // use to fetch rwos from demo table 
-                        sql = $"SELECT * FROM PackageDb WHERE ID={packageId}";
+                        sql = $"SELECT * FROM Package WHERE Id={packageId}";
 
                         // to execute the sql statement 
                         cmd = new SqlCommand(sql, conn);
